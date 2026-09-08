@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -43,8 +44,15 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        title: 'DramaBox',
+        title: 'DramaBox Việt',
         debugShowCheckedModeBanner: false,
+        locale: const Locale('vi', 'VN'),
+        supportedLocales: const [Locale('vi', 'VN')],
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
         theme: ThemeData(
           brightness: Brightness.dark,
           primarySwatch: Colors.blue,
