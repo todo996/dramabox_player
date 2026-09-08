@@ -16,7 +16,7 @@ class HistoryPage extends StatelessWidget {
         backgroundColor: Colors.black,
         elevation: 0,
         title: const Text(
-          'History',
+          'Lịch sử',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 24,
@@ -59,7 +59,7 @@ class HistoryPage extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.amber,
                     ),
-                    child: const Text('Retry'),
+                    child: const Text('Thử lại'),
                   ),
                 ],
               ),
@@ -90,7 +90,7 @@ class HistoryPage extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           const Text(
-            'Keep Track of Your Dramas',
+            'Theo dõi phim bạn đã xem',
             style: TextStyle(
               color: Colors.white,
               fontSize: 18,
@@ -101,7 +101,7 @@ class HistoryPage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40),
             child: Text(
-              "Your viewing history will appear here. Start watching dramas to keep track of where you left off!",
+              'Lịch sử xem của bạn sẽ xuất hiện tại đây. Hãy bắt đầu xem phim để dễ dàng tiếp tục từ nơi bạn đã dừng!',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.grey[600],
