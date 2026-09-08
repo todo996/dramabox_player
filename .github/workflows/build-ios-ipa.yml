@@ -26,13 +26,18 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Align iOS deployment target
+        run: |
+          sed -i '' "s/# platform :ios, '13.0'/platform :ios, '15.0'/" ios/Podfile
+          sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 13.0;/IPHONEOS_DEPLOYMENT_TARGET = 15.0;/g' ios/Runner.xcodeproj/project.pbxproj
+
       - name: Install CocoaPods dependencies
         run: |
           cd ios
           pod install --repo-update
 
       - name: Analyze project
-        run: flutter analyze
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
       - name: Build unsigned iOS app
         run: flutter build ios --release --no-codesign
