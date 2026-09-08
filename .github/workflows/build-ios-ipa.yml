@@ -1,0 +1,54 @@
+name: Build iOS IPA
+
+on:
+  push:
+    branches:
+      - vietnamese-default
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Flutter version
+        run: flutter --version
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Install CocoaPods dependencies
+        run: |
+          cd ios
+          pod install --repo-update
+
+      - name: Analyze project
+        run: flutter analyze
+
+      - name: Build unsigned iOS app
+        run: flutter build ios --release --no-codesign
+
+      - name: Package unsigned IPA
+        run: |
+          rm -rf Payload
+          mkdir Payload
+          cp -R build/ios/iphoneos/Runner.app Payload/
+          /usr/bin/zip -qry DramaBox-Viet-unsigned.ipa Payload
+          ls -lh DramaBox-Viet-unsigned.ipa
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DramaBox-Viet-IPA
+          path: DramaBox-Viet-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 30
