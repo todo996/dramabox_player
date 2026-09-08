@@ -62,7 +62,7 @@ class _SearchPageState extends State<SearchPage> {
               autofocus: false,
               style: const TextStyle(color: Colors.white, fontSize: 14),
               decoration: InputDecoration(
-                hintText: 'Search dramas...',
+                hintText: 'Tìm kiếm phim...',
                 hintStyle: TextStyle(color: Colors.grey[600]),
                 prefixIcon: Icon(
                   Icons.search,
@@ -97,7 +97,7 @@ class _SearchPageState extends State<SearchPage> {
               if (dramas.isEmpty) {
                 return const Center(
                   child: Text(
-                    'No results found',
+                    'Không tìm thấy kết quả',
                     style: TextStyle(color: Colors.white),
                   ),
                 );
