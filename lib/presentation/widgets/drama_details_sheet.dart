@@ -116,7 +116,7 @@ class DramaDetailsSheet extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '${episodes.length} Episodes',
+                  '${episodes.length} tập',
                   style: TextStyle(color: Colors.grey[400], fontSize: 14),
                 ),
                 const SizedBox(height: 8),
@@ -163,8 +163,8 @@ class DramaDetailsSheet extends StatelessWidget {
       unselectedLabelColor: Colors.grey,
       labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
       tabs: [
-        const Tab(text: 'EPISODES'),
-        if (hasDescription) const Tab(text: 'DESCRIPTION'),
+        const Tab(text: 'DANH SÁCH TẬP'),
+        if (hasDescription) const Tab(text: 'GIỚI THIỆU'),
       ],
     );
   }
