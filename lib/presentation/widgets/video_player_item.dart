@@ -117,7 +117,7 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
       if (mounted) {
         setState(() {
           _hasError = true;
-          _errorMessage = "Video URL is empty";
+          _errorMessage = 'URL video đang trống';
         });
       }
       return;
@@ -146,15 +146,15 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
               videoUrl = decrypted;
             } else {
               throw Exception(
-                "Valid stream URL not received from decryption API",
+                'Không nhận được URL luồng phát hợp lệ từ API giải mã',
               );
             }
           } catch (e) {
-            debugPrint("Error decrypting video url: $e");
+            debugPrint('Error decrypting video url: $e');
             if (mounted) {
               setState(() {
                 _hasError = true;
-                _errorMessage = 'Video decryption failed. Please try again.';
+                _errorMessage = 'Giải mã video thất bại. Vui lòng thử lại.';
                 _isInitializing = false;
               });
             }
@@ -168,7 +168,7 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
 
       // Check if we have a valid URL before proceeding
       if (videoUrl.isEmpty || !videoUrl.startsWith('http')) {
-        throw Exception("Invalid video URL");
+        throw Exception('URL video không hợp lệ');
       }
 
       _player = CachedVideoPlayerPlus.networkUrl(
@@ -200,7 +200,7 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
         }
       }
     } catch (e) {
-      debugPrint("Error initializing video: $e");
+      debugPrint('Error initializing video: $e');
       if (mounted) {
         setState(() {
           _hasError = true;
@@ -212,7 +212,7 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
   }
 
   SubtitleModel _getDefaultSubtitle() {
-    // Prioritize Indonesia (ID/IN) first
+    // Preserve original subtitle selection behavior.
     final List<String> idTags = ['in', 'id', 'indonesian', 'bahasa'];
     return widget.episode.subtitles.firstWhere(
       (s) => idTags.any((tag) => s.language.toLowerCase().contains(tag)),
@@ -228,11 +228,10 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
       final response = await Dio().get(url);
       if (response.data is String) {
         final content = response.data as String;
-        // The parser is now robust enough to handle VTT or SRT
         _parseSubtitles(content);
       }
     } catch (e) {
-      debugPrint("Error loading subtitles: $e");
+      debugPrint('Error loading subtitles: $e');
     }
   }
 
@@ -248,19 +247,15 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
           if (times.length == 2) {
             final startTimePart = times[0].trim();
             final endTimeLine = times[1].trim();
-            // Handle possibility of space after time (VTT/SRT variance)
             final endTimePart = endTimeLine.split(' ')[0];
 
             final start = _parseSubtitleTime(startTimePart);
             final end = _parseSubtitleTime(endTimePart);
 
-            // Fetch the text following the time code
             String text = '';
             i++;
             while (i < lines.length && lines[i].trim().isNotEmpty) {
-              // Skip numeric lines if it looks like an SRT index
               if (i + 1 < lines.length && lines[i + 1].contains('-->')) {
-                // It was just the index, text is still empty or belongs to previous. Break.
                 break;
               }
 
@@ -268,7 +263,7 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
               text += lines[i].trim().replaceAll(
                 RegExp(r'<[^>]*>'),
                 '',
-              ); // Basic HTML tag strip
+              );
               i++;
             }
 
@@ -292,12 +287,11 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
         });
       }
     } catch (e) {
-      debugPrint("Error parsing subtitles: $e");
+      debugPrint('Error parsing subtitles: $e');
     }
   }
 
   Duration _parseSubtitleTime(String time) {
-    // Robustly handle VTT (00:00:00.000) and SRT (00:00:00,000)
     final timeClean = time.replaceAll(',', '.');
     final parts = timeClean.split(':');
 
@@ -330,7 +324,7 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
         );
       }
     } catch (e) {
-      debugPrint("Error parsing time part [$time]: $e");
+      debugPrint('Error parsing time part [$time]: $e');
     }
     return Duration.zero;
   }
@@ -375,7 +369,6 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
         !_finishedTriggered) {
       _finishedTriggered = true;
       widget.onFinished?.call();
-      // Also ensure watched is triggered if it hasn't been yet (for short episodes)
       if (widget.isVisible && !_watchedTriggered) {
         _watchedTriggered = true;
         widget.onWatched?.call();
@@ -390,7 +383,6 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
       }
     }
 
-    // Process periodic progress updates
     if (widget.isVisible) {
       final currentSecond = position.inSeconds;
       if (currentSecond != _lastReportedSecond) {
@@ -456,14 +448,13 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
         : currentPosition - const Duration(seconds: 3);
 
     await player.controller.seekTo(seekTo);
-    // Clearing seek action is handled by the consumer logic or a timer if needed by UI
   }
 
   String _formatDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
     String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
     String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-    return "$twoDigitMinutes:$twoDigitSeconds";
+    return '$twoDigitMinutes:$twoDigitSeconds';
   }
 
   @override
@@ -472,7 +463,6 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
       value: _videoControlCubit,
       child: BlocConsumer<VideoControlCubit, VideoControlState>(
         listener: (context, state) {
-          // Handle side effects like player control
           if (_isInitialized && _player != null) {
             if (state.isSpeedUp) {
               _player!.controller.setPlaybackSpeed(1.5);
@@ -482,10 +472,6 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
 
             if (state.seekAction != null) {
               _seek(state.seekAction == 'forward');
-              // Clear the seek action state immediately after processing to prevent loops
-              // Or better, let the UI showing "Seek" be the one relying on state
-              // Actually the Seek side effect (video position) is handled here.
-              // The visual feedback is handled by the builder.
               Future.delayed(const Duration(milliseconds: 500), () {
                 if (mounted) {
                   _videoControlCubit.clearSeek();
@@ -506,7 +492,6 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
             backgroundColor: Colors.black,
             body: Stack(
               children: [
-                // Background Thumbnail / First Frame
                 if (!_isInitialized)
                   Positioned.fill(
                     child: CachedNetworkImage(
@@ -539,7 +524,6 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
                       : const SizedBox(),
                 ),
 
-                // Subtitle Overlay
                 if (_currentCaption.isNotEmpty && _subtitlesEnabled)
                   Positioned(
                     bottom: _showUI ? 220 : 160,
@@ -578,13 +562,11 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
                     ),
                   ),
 
-                // Loading indicator on top of thumbnail if not initialized and no error
                 if (!_isInitialized && !_hasError)
                   const Center(
                     child: CircularProgressIndicator(color: Colors.white24),
                   ),
 
-                // Error UI
                 if (_hasError)
                   Center(
                     child: Padding(
@@ -610,21 +592,19 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
                               foregroundColor: Colors.white,
                             ),
                             onPressed: _initializeController,
-                            child: const Text('Retry'),
+                            child: const Text('Thử lại'),
                           ),
                         ],
                       ),
                     ),
                   ),
 
-                // Layer 1: Background Toggle Layer (Handles taps on empty space)
                 Positioned.fill(
                   child: VideoGestureOverlay(
                     videoControlCubit: _videoControlCubit,
                   ),
                 ),
 
-                // Visual Feedback for Speed Up
                 if (state.isSpeedUp)
                   Positioned(
                     top: MediaQuery.of(context).padding.top + 80,
@@ -650,7 +630,7 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
                             ),
                             SizedBox(width: 8),
                             Text(
-                              '1.5x Speed Playing',
+                              'Đang phát tốc độ 1.5x',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
@@ -663,7 +643,6 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
                     ),
                   ),
 
-                // Visual Feedback for Seeking
                 if (state.seekAction != null)
                   Center(
                     child: Container(
@@ -684,7 +663,7 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
                           ),
                           const SizedBox(height: 4),
                           const Text(
-                            '3s',
+                            '3 giây',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 12,
@@ -696,13 +675,11 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
                     ),
                   ),
 
-                // Layer 2: UI Bars & Buttons
-                // Top Bar (Back button + Episode Index)
                 AnimatedOpacity(
                   opacity: _showUI ? 1.0 : 0.0,
                   duration: const Duration(milliseconds: 300),
                   child: IgnorePointer(
-                    ignoring: !_showUI, // Prevent clicks when hidden
+                    ignoring: !_showUI,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8.0,
@@ -754,7 +731,7 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
                             ),
                             const SizedBox(width: 16),
                             Text(
-                              'Ep. ${widget.index + 1} / ${widget.episodes.length} Episodes',
+                              'Tập ${widget.index + 1} / ${widget.episodes.length} tập',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
@@ -778,15 +755,11 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
                                   ),
                                   decoration: BoxDecoration(
                                     color: _subtitlesEnabled
-                                        ? Colors.redAccent.withValues(
-                                            alpha: 0.8,
-                                          )
+                                        ? Colors.redAccent.withValues(alpha: 0.8)
                                         : Colors.white.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(20),
                                     border: Border.all(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.1,
-                                      ),
+                                      color: Colors.white.withValues(alpha: 0.1),
                                       width: 0.5,
                                     ),
                                   ),
@@ -823,7 +796,6 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
                   ),
                 ),
 
-                // Bottom UI (Drama Info and Progress Indicator)
                 Positioned(
                   bottom: 0,
                   left: 0,
@@ -832,7 +804,7 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
                     opacity: _showUI ? 1.0 : 0.0,
                     duration: const Duration(milliseconds: 300),
                     child: IgnorePointer(
-                      ignoring: !_showUI, // Prevent clicks when hidden
+                      ignoring: !_showUI,
                       child: Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -852,7 +824,6 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const SizedBox(height: 12),
-                              // Controls Row: Play/Pause + Duration
                               Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 16.0,
@@ -862,8 +833,7 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
                                     if (_isInitialized && _player != null)
                                       GestureDetector(
                                         onTap: () {
-                                          final controller =
-                                              _player?.controller;
+                                          final controller = _player?.controller;
                                           if (controller == null) return;
                                           if (controller.value.isPlaying) {
                                             controller.pause();
@@ -876,32 +846,22 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
                                         child: Container(
                                           padding: const EdgeInsets.all(4),
                                           decoration: BoxDecoration(
-                                            color: Colors.white.withValues(
-                                              alpha: 0.1,
-                                            ),
+                                            color: Colors.white.withValues(alpha: 0.1),
                                             shape: BoxShape.circle,
                                             border: Border.all(
-                                              color: Colors.white.withValues(
-                                                alpha: 0.1,
-                                              ),
+                                              color: Colors.white.withValues(alpha: 0.1),
                                               width: 0.5,
                                             ),
                                           ),
                                           child: ClipRRect(
-                                            borderRadius: BorderRadius.circular(
-                                              20,
-                                            ),
+                                            borderRadius: BorderRadius.circular(20),
                                             child: BackdropFilter(
                                               filter: ImageFilter.blur(
                                                 sigmaX: 10,
                                                 sigmaY: 10,
                                               ),
                                               child: Icon(
-                                                _player
-                                                            ?.controller
-                                                            .value
-                                                            .isPlaying ??
-                                                        false
+                                                _player?.controller.value.isPlaying ?? false
                                                     ? Icons.pause_rounded
                                                     : Icons.play_arrow_rounded,
                                                 color: Colors.white,
@@ -932,8 +892,7 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
                                                     style: const TextStyle(
                                                       color: Colors.white,
                                                       fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.w600,
+                                                      fontWeight: FontWeight.w600,
                                                       fontFeatures: [
                                                         FontFeature.tabularFigures(),
                                                       ],
@@ -965,29 +924,22 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
                                       child: Container(
                                         padding: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
-                                          color: Colors.white.withValues(
-                                            alpha: 0.1,
-                                          ),
+                                          color: Colors.white.withValues(alpha: 0.1),
                                           shape: BoxShape.circle,
                                           border: Border.all(
-                                            color: Colors.white.withValues(
-                                              alpha: 0.15,
-                                            ),
+                                            color: Colors.white.withValues(alpha: 0.15),
                                             width: 1,
                                           ),
                                         ),
                                         child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                            20,
-                                          ),
+                                          borderRadius: BorderRadius.circular(20),
                                           child: BackdropFilter(
                                             filter: ImageFilter.blur(
                                               sigmaX: 10,
                                               sigmaY: 10,
                                             ),
                                             child: const Icon(
-                                              Icons
-                                                  .format_list_bulleted_rounded,
+                                              Icons.format_list_bulleted_rounded,
                                               color: Colors.white,
                                               size: 20,
                                             ),
@@ -1028,7 +980,6 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
 
                               const SizedBox(height: 16),
 
-                              // Drama Title & Episode Info
                               Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 16.0,
