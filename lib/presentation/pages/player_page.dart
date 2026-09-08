@@ -28,7 +28,6 @@ class _PlayerPageState extends State<PlayerPage> {
   @override
   void initState() {
     super.initState();
-    // Start loading data immediately
     context.read<PlayerBloc>().add(
       LoadEpisodesEvent(widget.drama.bookId, provider: widget.provider),
     );
@@ -44,16 +43,11 @@ class _PlayerPageState extends State<PlayerPage> {
 
   @override
   Widget build(BuildContext context) {
-    // We use a unique key for the whole screen content to ensure
-    // fresh state when switching dramas
     return BlocConsumer<PlayerBloc, PlayerState>(
       listener: (context, state) {
         if (state is PlayerLoaded) {
-          // Initialize or reset the controller with the saved index
           if (_pageController == null) {
-            final initialIndex = state.initialIndex == -1
-                ? 0
-                : state.initialIndex;
+            final initialIndex = state.initialIndex == -1 ? 0 : state.initialIndex;
             _currentIndex = initialIndex;
             final screenHeight = MediaQuery.of(context).size.height;
             _pageController = ScrollController(
@@ -100,7 +94,6 @@ class _PlayerPageState extends State<PlayerPage> {
           controller: _pageController,
           physics: const PageScrollPhysics(),
           scrollDirection: Axis.vertical,
-          // Preload next 3 episodes
           cacheExtent: MediaQuery.of(context).size.height * 3,
           slivers: [
             SliverFillViewport(
@@ -138,7 +131,6 @@ class _PlayerPageState extends State<PlayerPage> {
                             chapterCount: state.episodes.length,
                           )
                         : widget.drama;
-                    // This is still useful for immediate history tagging
                     context.read<PlayerBloc>().add(
                       SaveProgressEvent(
                         drama,
@@ -146,8 +138,6 @@ class _PlayerPageState extends State<PlayerPage> {
                         episodeName: state.episodes[index].chapterName,
                         provider: widget.provider,
                         isHistoryUpdate: true,
-                        // We don't have immediate access to current subtitle state here
-                        // but it will be picked up by the next periodic progress update
                       ),
                     );
                   },
@@ -218,7 +208,7 @@ class _PlayerPageState extends State<PlayerPage> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Back'),
+              child: const Text('Quay lại'),
             ),
           ],
         ),
@@ -281,7 +271,6 @@ class _PlayerLoadingViewState extends State<_PlayerLoadingView>
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Concentric Rings
           AnimatedBuilder(
             animation: _pulseController,
             builder: (context, child) {
@@ -294,12 +283,9 @@ class _PlayerLoadingViewState extends State<_PlayerLoadingView>
               );
             },
           ),
-
-          // Central Content
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Icon with glow
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
@@ -317,8 +303,6 @@ class _PlayerLoadingViewState extends State<_PlayerLoadingView>
                 ),
               ),
               const SizedBox(height: 48),
-
-              // Percentage
               Text(
                 '${(_progress * 100).toInt()}%',
                 style: const TextStyle(
@@ -329,8 +313,6 @@ class _PlayerLoadingViewState extends State<_PlayerLoadingView>
                 ),
               ),
               const SizedBox(height: 16),
-
-              // Progress Bar
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 48),
                 child: ClipRRect(
@@ -346,7 +328,6 @@ class _PlayerLoadingViewState extends State<_PlayerLoadingView>
                 ),
               ),
               const SizedBox(height: 32),
-
               const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -358,12 +339,10 @@ class _PlayerLoadingViewState extends State<_PlayerLoadingView>
                 ],
               ),
               const SizedBox(height: 24),
-
-              // Text
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 40),
                 child: Text(
-                  'Fetching episodes... please wait.',
+                  'Đang tải danh sách tập... vui lòng chờ.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.grey,
@@ -375,7 +354,7 @@ class _PlayerLoadingViewState extends State<_PlayerLoadingView>
               ),
               const SizedBox(height: 8),
               const Text(
-                'This may take a moment depending on your connection.',
+                'Thời gian tải có thể phụ thuộc vào kết nối mạng của bạn.',
                 style: TextStyle(
                   color: Colors.grey,
                   fontSize: 13,
