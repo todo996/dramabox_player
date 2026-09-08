@@ -61,16 +61,12 @@ class DramaCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Episode Info (Top Left)
                 if (showChapterCount && drama.chapterCount > 0)
                   Positioned(
                     top: 0,
                     left: 0,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: Colors.black.withValues(alpha: 0.75),
                         borderRadius: const BorderRadius.only(
@@ -79,7 +75,7 @@ class DramaCard extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        '${drama.chapterCount} Ep',
+                        '${drama.chapterCount} tập',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 10,
@@ -89,18 +85,13 @@ class DramaCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                // View Count & Play Icon (Conditional)
                 if (hasPlayData && !hideHotCode)
                   Positioned(
                     bottom: 8,
                     right: 8,
                     child: Row(
                       children: [
-                        const Icon(
-                          Icons.play_arrow,
-                          color: Colors.white,
-                          size: 14,
-                        ),
+                        const Icon(Icons.play_arrow, color: Colors.white, size: 14),
                         Text(
                           drama.hotCode!,
                           style: const TextStyle(
@@ -112,7 +103,6 @@ class DramaCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                // Last Watched Progress (Bottom Overlay)
                 if (lastWatchedIndex != null && lastWatchedIndex! >= 0)
                   _buildProgressBadge(
                     lastWatchedIndex!,
@@ -198,7 +188,7 @@ class DramaCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
               color: Colors.amber.withValues(alpha: 0.95),
               child: Text(
-                'LAST WATCHED EP ${index + 1}',
+                'XEM GẦN NHẤT: TẬP ${index + 1}',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: Colors.black,
