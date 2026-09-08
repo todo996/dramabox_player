@@ -16,7 +16,6 @@ class RateLimitErrorWidget extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Icon
             Container(
               width: 80,
               height: 80,
@@ -31,10 +30,8 @@ class RateLimitErrorWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-
-            // Title
             const Text(
-              'Server Unavailable',
+              'Máy chủ tạm thời không khả dụng',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 20,
@@ -42,10 +39,8 @@ class RateLimitErrorWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-
-            // Description
             Text(
-              'The API server is temporarily blocking requests due to high traffic. Please wait a moment and try again.',
+              'Máy chủ API đang tạm chặn yêu cầu do lưu lượng truy cập cao. Vui lòng chờ một lúc rồi thử lại.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.grey[400],
@@ -54,15 +49,13 @@ class RateLimitErrorWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 28),
-
-            // Retry button
             if (onRetry != null)
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: onRetry,
                   icon: const Icon(Icons.refresh, size: 18),
-                  label: const Text('Retry'),
+                  label: const Text('Thử lại'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.amber,
                     foregroundColor: Colors.black,
