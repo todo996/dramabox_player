@@ -1,11 +1,11 @@
 {
-    "name": "dramabox_free",
-    "short_name": "dramabox_free",
+    "name": "DramaBox Việt",
+    "short_name": "DramaBox Việt",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Ứng dụng xem phim ngắn DramaBox và NetShort.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
