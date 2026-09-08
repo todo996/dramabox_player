@@ -44,6 +44,29 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
+  String _localizedSectionName(String name) {
+    switch (name.trim().toLowerCase()) {
+      case 'for you':
+        return 'Dành cho bạn';
+      case 'trending':
+        return 'Thịnh hành';
+      case 'popular':
+        return 'Phổ biến';
+      case 'new':
+      case 'new releases':
+        return 'Mới phát hành';
+      case 'recommended':
+      case 'recommend':
+        return 'Đề xuất';
+      case 'hot':
+        return 'Nổi bật';
+      case 'latest':
+        return 'Mới nhất';
+      default:
+        return name;
+    }
+  }
+
   void _onScroll() {
     if (_isPaginationInProgress) return;
 
@@ -51,20 +74,20 @@ class _HomePageState extends State<HomePage> {
         _scrollController.position.maxScrollExtent - 200) {
       final provider = context.read<NavigationCubit>().state;
       final state = context.read<HomeBloc>().state;
-      
+
       if (state is HomeLoaded) {
         final sections = provider == AppContentProvider.dramabox
             ? state.sectionsForDramabox
             : state.sectionsForNetshort;
-            
+
         if (_selectedSectionIndex >= sections.length) return;
-        
+
         final section = sections[_selectedSectionIndex];
-        
-        // Only For You supports pagination for Dramabox
-        if (provider == AppContentProvider.dramabox && 
+
+        // Keep the original API section name for pagination logic.
+        if (provider == AppContentProvider.dramabox &&
             section.name != 'For You') {
-           return;
+          return;
         }
 
         if (section.hasMore) {
@@ -75,9 +98,7 @@ class _HomePageState extends State<HomePage> {
               sectionIndex: _selectedSectionIndex,
             ),
           );
-          
-          // Reset loading flag after a short delay
-          // In a real app, this should be handled by BLoC state changes
+
           Future.delayed(const Duration(seconds: 1), () {
             if (mounted) {
               setState(() => _isPaginationInProgress = false);
@@ -87,7 +108,6 @@ class _HomePageState extends State<HomePage> {
       }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +130,7 @@ class _HomePageState extends State<HomePage> {
                   controller: _searchController,
                   style: const TextStyle(color: Colors.white, fontSize: 14),
                   decoration: InputDecoration(
-                    hintText: 'Search dramas...',
+                    hintText: 'Tìm kiếm phim...',
                     hintStyle: TextStyle(color: Colors.grey[600]),
                     prefixIcon: Icon(
                       Icons.search,
@@ -143,7 +163,6 @@ class _HomePageState extends State<HomePage> {
           return IndexedStack(
             index: _selectedTabIndex == 2 ? 1 : 0,
             children: [
-              // Home Content (Dramabox or Netshort)
               BlocBuilder<HomeBloc, HomeState>(
                 builder: (context, state) {
                   if (state is HomeLoading) {
@@ -157,14 +176,12 @@ class _HomePageState extends State<HomePage> {
                       return const DramaShimmerGrid();
                     }
 
-                    // Ensure selected index is valid
                     if (_selectedSectionIndex >= sections.length) {
                       _selectedSectionIndex = 0;
                     }
 
                     return Column(
                       children: [
-                        // Chip Menu
                         SizedBox(
                           height: 50,
                           child: ListView.builder(
@@ -181,15 +198,12 @@ class _HomePageState extends State<HomePage> {
                                       setState(() {
                                         _selectedSectionIndex = index;
                                       });
-                                      // Reset scroll when switching sections
                                       if (_scrollController.hasClients) {
                                         _scrollController.jumpTo(0);
                                       }
                                     },
                                     child: AnimatedDefaultTextStyle(
-                                      duration: const Duration(
-                                        milliseconds: 200,
-                                      ),
+                                      duration: const Duration(milliseconds: 200),
                                       style: TextStyle(
                                         color: isSelected
                                             ? Colors.white
@@ -199,7 +213,9 @@ class _HomePageState extends State<HomePage> {
                                             ? FontWeight.bold
                                             : FontWeight.normal,
                                       ),
-                                      child: Text(sections[index].name),
+                                      child: Text(
+                                        _localizedSectionName(sections[index].name),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -227,12 +243,17 @@ class _HomePageState extends State<HomePage> {
                         },
                       );
                     }
-                    return Center(child: Text(state.message));
+                    return Center(
+                      child: Text(
+                        state.message,
+                        style: const TextStyle(color: Colors.white),
+                        textAlign: TextAlign.center,
+                      ),
+                    );
                   }
                   return const SizedBox();
                 },
               ),
-              // History Content
               const HistoryPage(),
             ],
           );
@@ -254,13 +275,12 @@ class _HomePageState extends State<HomePage> {
                   final patch = snapshot.data;
                   final baseVersion = sl<ShorebirdService>().appVersion;
                   final versionText =
-                      '$baseVersion${patch != null ? ' (Patch $patch)' : ''}';
+                      '$baseVersion${patch != null ? ' (Bản vá $patch)' : ''}';
                   Widget statusWidget = const SizedBox.shrink();
                   Color? bgColor = Colors.black;
 
                   switch (status) {
                     case ShorebirdUpdateStatus.idle:
-                      // Handled above
                       break;
                     case ShorebirdUpdateStatus.checking:
                       statusWidget = Row(
@@ -278,7 +298,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'Checking for updates... ($versionText)',
+                            'Đang kiểm tra cập nhật... ($versionText)',
                             style: TextStyle(
                               fontSize: 10,
                               color: Colors.grey[400],
@@ -303,7 +323,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'Downloading patch... ($versionText)',
+                            'Đang tải bản vá... ($versionText)',
                             style: const TextStyle(
                               fontSize: 10,
                               color: Colors.amber,
@@ -325,7 +345,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           SizedBox(width: 8),
                           Text(
-                            'Update ready! Restart app to apply.',
+                            'Đã có bản cập nhật! Khởi động lại ứng dụng để áp dụng.',
                             style: TextStyle(
                               fontSize: 11,
                               color: Colors.white,
@@ -337,7 +357,7 @@ class _HomePageState extends State<HomePage> {
                       break;
                     case ShorebirdUpdateStatus.error:
                       statusWidget = Text(
-                        'Update failed',
+                        'Cập nhật thất bại',
                         style: TextStyle(fontSize: 10, color: Colors.red[400]),
                       );
                       break;
@@ -387,7 +407,6 @@ class _HomePageState extends State<HomePage> {
                     });
 
                     if (index == 2) {
-                      // History tab selected
                       context.read<HistoryBloc>().add(LoadHistoryEvent());
                       return;
                     }
@@ -402,7 +421,6 @@ class _HomePageState extends State<HomePage> {
                       context.read<HomeBloc>().add(
                         FetchHomeDataEvent(provider: newProvider),
                       );
-                      // Reset scroll when switching providers
                       if (_scrollController.hasClients) {
                         _scrollController.jumpTo(0);
                       }
@@ -459,11 +477,11 @@ class _HomePageState extends State<HomePage> {
                           const SizedBox(height: 2),
                         ],
                       ),
-                      label: 'Netshort',
+                      label: 'NetShort',
                     ),
                     const BottomNavigationBarItem(
                       icon: Icon(Icons.history_rounded, size: 26),
-                      label: 'History',
+                      label: 'Lịch sử',
                     ),
                   ],
                 ),
