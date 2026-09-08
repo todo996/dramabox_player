@@ -28,8 +28,9 @@ jobs:
 
       - name: Align iOS deployment target
         run: |
-          sed -i '' "s/# platform :ios, '13.0'/platform :ios, '15.0'/" ios/Podfile
-          sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 13.0;/IPHONEOS_DEPLOYMENT_TARGET = 15.0;/g' ios/Runner.xcodeproj/project.pbxproj
+          sed -i '' "s/platform :ios, '16.0'/platform :ios, '16.0'/" ios/Podfile
+          sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 13.0;/IPHONEOS_DEPLOYMENT_TARGET = 16.0;/g' ios/Runner.xcodeproj/project.pbxproj
+          sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 15.0;/IPHONEOS_DEPLOYMENT_TARGET = 16.0;/g' ios/Runner.xcodeproj/project.pbxproj
 
       - name: Install CocoaPods dependencies
         run: |
